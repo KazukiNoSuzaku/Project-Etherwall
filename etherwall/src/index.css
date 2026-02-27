@@ -112,38 +112,70 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Theme pills ──────────────────────────────────────────────────────────── */
-.theme-row {
-  flex-wrap: wrap;
-}
+/* ── Mode pills ───────────────────────────────────────────────────────────── */
+.mode-row { flex-wrap: wrap; }
 
-.theme-pills {
+.mode-pills {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
   flex: 1;
 }
 
-.theme-pill {
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.65);
+.mode-pill {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 11px;
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s, color 0.18s;
 }
 
-.theme-pill:hover {
+.mode-pill:hover {
+  background: rgba(255, 255, 255, 0.11);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.mode-pill.active {
+  background: rgba(167, 139, 250, 0.22);
+  border-color: rgba(167, 139, 250, 0.50);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+/* ── Music row ────────────────────────────────────────────────────────────── */
+.music-row {
+  gap: 8px;
+}
+
+.music-btn {
+  flex: 0 0 52px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.music-btn.active {
+  background: rgba(52, 211, 153, 0.20);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: #6ee7b7;
+}
+
+.music-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.90);
 }
 
-.theme-pill.active {
-  background: rgba(167, 139, 250, 0.25);
-  border-color: rgba(167, 139, 250, 0.55);
-  color: #c4b5fd;
+.music-row input[type="range"] {
+  flex: 1;
 }
 
 /* ── FX toggles ───────────────────────────────────────────────────────────── */

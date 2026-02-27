@@ -1,33 +1,40 @@
 import './index.css';
 import { AnimationEngine } from './animations.js';
+import { MusicEngine }     from './music.js';
 
 const api = window.etherwall;
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const canvas    = document.getElementById('canvas');
-const overlay   = document.getElementById('settings-overlay');
-const sliders   = {
+const canvas      = document.getElementById('canvas');
+const overlay     = document.getElementById('settings-overlay');
+const fxRow       = document.getElementById('fx-row');
+const sliders     = {
   orbCount:   document.getElementById('orb-count'),
   animSpeed:  document.getElementById('anim-speed'),
   orbOpacity: document.getElementById('orb-opacity'),
+  musicVol:   document.getElementById('music-vol'),
 };
 const vals = {
   orbCount:   document.getElementById('orb-count-val'),
   animSpeed:  document.getElementById('anim-speed-val'),
   orbOpacity: document.getElementById('orb-opacity-val'),
+  musicVol:   document.getElementById('music-vol-val'),
 };
+const modePills     = document.querySelectorAll('.mode-pill');
 const fxToggles     = document.querySelectorAll('.fx-toggle');
+const btnMusic      = document.getElementById('btn-music');
 const btnQuit       = document.getElementById('btn-quit');
 const btnFullscreen = document.getElementById('btn-fullscreen');
 
-// ── Engine ────────────────────────────────────────────────────────────────────
+// ── Engines ───────────────────────────────────────────────────────────────────
 const engine = new AnimationEngine(canvas);
+const music  = new MusicEngine();
 
 function resizeCanvas() { engine.resize(window.innerWidth, window.innerHeight); }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ── Load settings & start ─────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   const s = await api.getSettings();
   engine.applySettings(s);
@@ -44,10 +51,20 @@ function syncUI(s) {
   vals.orbCount.textContent   = s.orbCount;
   vals.animSpeed.textContent  = `${Number(s.animationSpeed).toFixed(1)}×`;
   vals.orbOpacity.textContent = `${Math.round(s.orbOpacity * 100)}%`;
-  fxToggles.forEach(btn => {
-    btn.classList.toggle('active', engine.fx[btn.dataset.fx] !== false);
-  });
+  fxToggles.forEach(b => b.classList.toggle('active', engine.fx[b.dataset.fx] !== false));
+  // Show FX row only in orbs mode
+  fxRow.style.display = engine.mode === 0 ? '' : 'none';
 }
+
+// ── Mode pills ────────────────────────────────────────────────────────────────
+modePills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    const m = Number(pill.dataset.mode);
+    modePills.forEach(p => p.classList.toggle('active', p === pill));
+    engine.setMode(m);
+    fxRow.style.display = m === 0 ? '' : 'none';
+  });
+});
 
 // ── Sliders ───────────────────────────────────────────────────────────────────
 let debounceTimer = null;
@@ -65,13 +82,11 @@ sliders.orbCount.addEventListener('input', e => {
   vals.orbCount.textContent = v;
   scheduleSave({ orbCount: v });
 });
-
 sliders.animSpeed.addEventListener('input', e => {
   const v = Number(e.target.value);
   vals.animSpeed.textContent = `${v.toFixed(1)}×`;
   scheduleSave({ animationSpeed: v });
 });
-
 sliders.orbOpacity.addEventListener('input', e => {
   const v = Number(e.target.value);
   vals.orbOpacity.textContent = `${Math.round(v * 100)}%`;
@@ -85,6 +100,25 @@ fxToggles.forEach(btn => {
     engine.fx[key] = !engine.fx[key];
     btn.classList.toggle('active', engine.fx[key]);
   });
+});
+
+// ── Music ─────────────────────────────────────────────────────────────────────
+btnMusic.addEventListener('click', async () => {
+  if (music.playing) {
+    music.stop();
+    btnMusic.textContent = '▶ On';
+    btnMusic.classList.remove('active');
+  } else {
+    await music.start();
+    btnMusic.textContent = '■ Off';
+    btnMusic.classList.add('active');
+  }
+});
+
+sliders.musicVol.addEventListener('input', e => {
+  const v = Number(e.target.value);
+  vals.musicVol.textContent = `${Math.round(v * 100)}%`;
+  music.setVolume(v);
 });
 
 // ── Control buttons ───────────────────────────────────────────────────────────
@@ -109,7 +143,6 @@ document.addEventListener('mousemove', e => {
     }, 1200);
   }
 });
-
 overlay.addEventListener('mouseenter', () => clearTimeout(hideTimer));
 overlay.addEventListener('mouseleave', () => {
   hideTimer = setTimeout(() => {

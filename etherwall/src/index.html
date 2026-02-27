@@ -8,11 +8,21 @@
   <body>
     <canvas id="canvas"></canvas>
 
-    <!-- Settings overlay — revealed on mouse proximity to top-right corner -->
     <div id="settings-overlay" class="settings-overlay hidden">
       <div class="settings-panel">
         <h2 class="settings-title">Etherwall</h2>
 
+        <!-- Animation mode -->
+        <div class="setting-row mode-row">
+          <span>Mode</span>
+          <div class="mode-pills">
+            <button class="mode-pill active" data-mode="0">Orbs</button>
+            <button class="mode-pill"        data-mode="1">Smoke</button>
+            <button class="mode-pill"        data-mode="2">Ripple</button>
+          </div>
+        </div>
+
+        <!-- Sliders -->
         <label class="setting-row">
           <span>Orbs</span>
           <input type="range" id="orb-count" min="4" max="30" step="1" value="12" />
@@ -31,7 +41,8 @@
           <span class="val" id="orb-opacity-val">80%</span>
         </label>
 
-        <div class="setting-row fx-row">
+        <!-- FX toggles (orbs mode only) -->
+        <div class="setting-row fx-row" id="fx-row">
           <span>Effects</span>
           <div class="fx-toggles">
             <button class="fx-toggle active" data-fx="stars">Stars</button>
@@ -41,8 +52,17 @@
           </div>
         </div>
 
+        <!-- Music -->
+        <div class="setting-row music-row">
+          <span>Music</span>
+          <button id="btn-music" class="music-btn">▶ On</button>
+          <input type="range" id="music-vol" min="0" max="1" step="0.05" value="0.55" />
+          <span class="val" id="music-vol-val">55%</span>
+        </div>
+
+        <!-- Controls -->
         <div class="setting-row btn-row">
-          <button id="btn-quit" class="ctrl-btn quit-btn">Quit</button>
+          <button id="btn-quit"       class="ctrl-btn quit-btn">Quit</button>
           <button id="btn-fullscreen" class="ctrl-btn">Fullscreen</button>
         </div>
 
