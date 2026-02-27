@@ -4,9 +4,9 @@ import { AnimationEngine } from './animations.js';
 const api = window.etherwall;
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const canvas      = document.getElementById('canvas');
-const overlay     = document.getElementById('settings-overlay');
-const sliders     = {
+const canvas    = document.getElementById('canvas');
+const overlay   = document.getElementById('settings-overlay');
+const sliders   = {
   orbCount:   document.getElementById('orb-count'),
   animSpeed:  document.getElementById('anim-speed'),
   orbOpacity: document.getElementById('orb-opacity'),
@@ -16,17 +16,14 @@ const vals = {
   animSpeed:  document.getElementById('anim-speed-val'),
   orbOpacity: document.getElementById('orb-opacity-val'),
 };
-const themePills  = document.querySelectorAll('.theme-pill');
-const fxToggles   = document.querySelectorAll('.fx-toggle');
-const btnQuit     = document.getElementById('btn-quit');
+const fxToggles     = document.querySelectorAll('.fx-toggle');
+const btnQuit       = document.getElementById('btn-quit');
 const btnFullscreen = document.getElementById('btn-fullscreen');
 
 // ── Engine ────────────────────────────────────────────────────────────────────
 const engine = new AnimationEngine(canvas);
 
-function resizeCanvas() {
-  engine.resize(window.innerWidth, window.innerHeight);
-}
+function resizeCanvas() { engine.resize(window.innerWidth, window.innerHeight); }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
@@ -39,7 +36,7 @@ async function init() {
 }
 init();
 
-// ── Sync UI from settings object ──────────────────────────────────────────────
+// ── Sync UI ───────────────────────────────────────────────────────────────────
 function syncUI(s) {
   sliders.orbCount.value   = s.orbCount;
   sliders.animSpeed.value  = s.animationSpeed;
@@ -47,17 +44,12 @@ function syncUI(s) {
   vals.orbCount.textContent   = s.orbCount;
   vals.animSpeed.textContent  = `${Number(s.animationSpeed).toFixed(1)}×`;
   vals.orbOpacity.textContent = `${Math.round(s.orbOpacity * 100)}%`;
-  themePills.forEach(p => {
-    p.classList.toggle('active', Number(p.dataset.theme) === s.colorTheme);
-  });
-  // fx toggles mirror engine fx flags
   fxToggles.forEach(btn => {
-    const on = engine.fx[btn.dataset.fx] !== false;
-    btn.classList.toggle('active', on);
+    btn.classList.toggle('active', engine.fx[btn.dataset.fx] !== false);
   });
 }
 
-// ── Slider → settings ─────────────────────────────────────────────────────────
+// ── Sliders ───────────────────────────────────────────────────────────────────
 let debounceTimer = null;
 function scheduleSave(patch) {
   engine.applySettings(patch);
@@ -86,14 +78,6 @@ sliders.orbOpacity.addEventListener('input', e => {
   scheduleSave({ orbOpacity: v });
 });
 
-themePills.forEach(pill => {
-  pill.addEventListener('click', () => {
-    const theme = Number(pill.dataset.theme);
-    themePills.forEach(p => p.classList.toggle('active', p === pill));
-    scheduleSave({ colorTheme: theme });
-  });
-});
-
 // ── FX toggles ────────────────────────────────────────────────────────────────
 fxToggles.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -107,7 +91,7 @@ fxToggles.forEach(btn => {
 btnQuit.addEventListener('click',       () => api.quitApp());
 btnFullscreen.addEventListener('click', () => api.toggleFullscreen());
 
-// ── Settings reveal on mouse proximity (top-right corner) ─────────────────────
+// ── Settings reveal (top-right corner) ───────────────────────────────────────
 const REVEAL_ZONE = 150;
 let hideTimer = null;
 
@@ -134,7 +118,7 @@ overlay.addEventListener('mouseleave', () => {
   }, 800);
 });
 
-// ── Escape key ────────────────────────────────────────────────────────────────
+// ── Escape ────────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (overlay.classList.contains('visible')) {

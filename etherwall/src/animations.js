@@ -1,36 +1,31 @@
 // ──────────────────────────────────────────────────────────────────────────────
-// Color themes
+// Calming palette generator
 // ──────────────────────────────────────────────────────────────────────────────
-export const THEMES = [
-  // 0 — Midnight
-  [
-    { r: 100, g:  80, b: 255 },
-    { r:  60, g: 140, b: 255 },
-    { r: 180, g:  60, b: 255 },
-    { r:  40, g: 200, b: 220 },
-  ],
-  // 1 — Ocean
-  [
-    { r:   0, g: 180, b: 220 },
-    { r:   0, g: 230, b: 200 },
-    { r:  20, g: 100, b: 200 },
-    { r:  60, g: 220, b: 255 },
-  ],
-  // 2 — Sunset
-  [
-    { r: 255, g:  80, b:  60 },
-    { r: 255, g: 160, b:  40 },
-    { r: 200, g:  40, b: 120 },
-    { r: 255, g: 200, b:  60 },
-  ],
-  // 3 — Forest
-  [
-    { r:  40, g: 200, b:  80 },
-    { r:  80, g: 255, b: 120 },
-    { r:  20, g: 160, b: 100 },
-    { r: 160, g: 220, b:  60 },
-  ],
-];
+
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return { r: Math.round(f(0) * 255), g: Math.round(f(8) * 255), b: Math.round(f(4) * 255) };
+}
+
+// Calming hue zones: teals, blues, purples, lavenders, soft rose, mint
+const CALM_HUES = [170, 185, 200, 215, 230, 245, 260, 275, 290, 310, 330, 155, 190];
+
+function generateCalmPalette() {
+  const base = CALM_HUES[Math.floor(Math.random() * CALM_HUES.length)] + rand(-15, 15);
+  const offsets = [0, 22, -18, 40];
+  return offsets.map(off => {
+    const hue = ((base + off) % 360 + 360) % 360;
+    const sat = rand(28, 52);   // muted — not vivid
+    const lit = rand(55, 74);   // bright enough to glow, never harsh
+    return hslToRgb(hue, sat, lit);
+  });
+}
+
+// Deep-copy a palette (so target doesn't share refs with current)
+function clonePalette(p) { return p.map(c => ({ ...c })); }
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -40,7 +35,7 @@ function lerp(a, b, t)      { return a + (b - a) * t; }
 function dist2(ax,ay,bx,by) { const dx=ax-bx,dy=ay-by; return dx*dx+dy*dy; }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Star (background starfield)
+// Star
 // ──────────────────────────────────────────────────────────────────────────────
 class Star {
   constructor(w, h) { this.init(w, h); }
@@ -55,7 +50,7 @@ class Star {
 
   draw(ctx, dt) {
     this.phase += dt * this.freq;
-    const a = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(this.phase));
+    const a = 0.20 + 0.45 * (0.5 + 0.5 * Math.sin(this.phase));
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255,255,255,${a})`;
@@ -70,17 +65,16 @@ class ShootingStar {
   constructor(w, h) { this.reset(w, h); this.active = false; }
 
   reset(w, h) {
-    this.w     = w;
-    this.h     = h;
-    this.x     = rand(-w * 0.2, w * 1.2);
-    this.y     = rand(-h * 0.2, h * 0.4);
-    const angle = rand(Math.PI * 0.05, Math.PI * 0.35);
-    const speed = rand(600, 1400);
-    this.vx    = Math.cos(angle) * speed;
-    this.vy    = Math.sin(angle) * speed;
-    this.life  = 1.0;
+    this.w    = w; this.h = h;
+    this.x    = rand(-w * 0.2, w * 1.2);
+    this.y    = rand(-h * 0.2, h * 0.4);
+    const ang = rand(Math.PI * 0.05, Math.PI * 0.35);
+    const spd = rand(600, 1400);
+    this.vx   = Math.cos(ang) * spd;
+    this.vy   = Math.sin(ang) * spd;
+    this.life = 1.0;
     this.decay = rand(0.6, 1.2);
-    this.len   = rand(80, 220);
+    this.len  = rand(80, 220);
     this.active = true;
   }
 
@@ -96,11 +90,10 @@ class ShootingStar {
     if (!this.active) return;
     const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     const nx = -this.vx / spd, ny = -this.vy / spd;
-    const tx = this.x + nx * this.len;
-    const ty = this.y + ny * this.len;
+    const tx = this.x + nx * this.len, ty = this.y + ny * this.len;
     const grad = ctx.createLinearGradient(this.x, this.y, tx, ty);
-    grad.addColorStop(0, `rgba(255,255,255,${this.life * 0.9})`);
-    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    grad.addColorStop(0, `rgba(220,235,255,${this.life * 0.85})`);
+    grad.addColorStop(1, 'rgba(220,235,255,0)');
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
     ctx.lineTo(tx, ty);
@@ -111,15 +104,12 @@ class ShootingStar {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// PulseRing  (expands from an orb centre)
+// PulseRing
 // ──────────────────────────────────────────────────────────────────────────────
 class PulseRing {
-  constructor(x, y, color, maxR) {
-    this.x = x; this.y = y; this.color = color;
-    this.r    = 0;
-    this.maxR = maxR;
-    this.life = 1.0;
-    this.done = false;
+  constructor(x, y, colorRef, maxR) {
+    this.x = x; this.y = y; this.colorRef = colorRef;
+    this.r = 0; this.maxR = maxR; this.life = 1.0; this.done = false;
   }
 
   update(dt, speedMult) {
@@ -129,50 +119,48 @@ class PulseRing {
   }
 
   draw(ctx) {
-    const { r: cr, g: cg, b: cb } = this.color;
+    const { r: cr, g: cg, b: cb } = this.colorRef;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${cr},${cg},${cb},${this.life * 0.45})`;
+    ctx.strokeStyle = `rgba(${Math.round(cr)},${Math.round(cg)},${Math.round(cb)},${this.life * 0.40})`;
     ctx.lineWidth   = this.life * 3.5;
     ctx.stroke();
   }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// AuroraWave  (flowing sine bands across the lower screen)
+// AuroraWave
 // ──────────────────────────────────────────────────────────────────────────────
 class AuroraWave {
-  constructor(theme) {
-    this.t     = rand(0, Math.PI * 2);
-    this.speed = rand(0.08, 0.18);
-    this.amp   = rand(30, 90);
-    this.freq  = rand(0.003, 0.008);
-    this.yBase = rand(0.55, 0.90);   // fraction of screen height
+  constructor(colorRef) {
+    this.color  = colorRef;   // shared mutable reference — auto-updates with palette
+    this.t      = rand(0, Math.PI * 2);
+    this.speed  = rand(0.06, 0.14);
+    this.amp    = rand(30, 90);
+    this.freq   = rand(0.002, 0.007);
+    this.yBase  = rand(0.50, 0.88);
     this.height = rand(60, 130);
-    this.colorIdx = Math.floor(rand(0, theme.length));
-    this.theme = theme;
   }
 
-  update(dt, speedMult) {
-    this.t += dt * this.speed * speedMult;
-  }
+  update(dt, speedMult) { this.t += dt * this.speed * speedMult; }
 
   draw(ctx, w, h) {
-    const { r: cr, g: cg, b: cb } = this.theme[this.colorIdx];
+    const { r: cr, g: cg, b: cb } = this.color;
     const yBase = this.yBase * h;
     ctx.beginPath();
     ctx.moveTo(0, h);
-    for (let x = 0; x <= w; x += 4) {
-      const y = yBase + Math.sin(x * this.freq + this.t) * this.amp
-                      + Math.sin(x * this.freq * 1.7 + this.t * 1.3) * this.amp * 0.4;
+    for (let x = 0; x <= w; x += 5) {
+      const y = yBase
+        + Math.sin(x * this.freq + this.t) * this.amp
+        + Math.sin(x * this.freq * 1.7 + this.t * 1.3) * this.amp * 0.4;
       ctx.lineTo(x, y);
     }
     ctx.lineTo(w, h);
     ctx.closePath();
     const grad = ctx.createLinearGradient(0, yBase - this.height, 0, h);
-    grad.addColorStop(0,   `rgba(${cr},${cg},${cb},0)`);
-    grad.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.07)`);
-    grad.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+    grad.addColorStop(0,   `rgba(${Math.round(cr)},${Math.round(cg)},${Math.round(cb)},0)`);
+    grad.addColorStop(0.4, `rgba(${Math.round(cr)},${Math.round(cg)},${Math.round(cb)},0.06)`);
+    grad.addColorStop(1,   `rgba(${Math.round(cr)},${Math.round(cg)},${Math.round(cb)},0)`);
     ctx.fillStyle = grad;
     ctx.fill();
   }
@@ -182,8 +170,9 @@ class AuroraWave {
 // FloatingOrb
 // ──────────────────────────────────────────────────────────────────────────────
 export class FloatingOrb {
-  constructor(w, h, color) {
-    this.w = w; this.h = h; this.color = color;
+  constructor(w, h, colorRef) {
+    this.w = w; this.h = h;
+    this.color       = colorRef;  // shared mutable reference
     this.radius      = rand(60, 180);
     this.x           = rand(0, w);
     this.y           = rand(0, h);
@@ -194,7 +183,6 @@ export class FloatingOrb {
     this.opacityPhase= rand(0, Math.PI * 2);
     this.breatheAmp  = rand(0.08, 0.18);
     this.breatheFreq = rand(0.4, 0.9);
-    // pulse
     this.pulseTimer  = rand(2, 6);
   }
 
@@ -213,10 +201,7 @@ export class FloatingOrb {
   }
 
   shouldPulse() {
-    if (this.pulseTimer <= 0) {
-      this.pulseTimer = rand(3, 8);
-      return true;
-    }
+    if (this.pulseTimer <= 0) { this.pulseTimer = rand(3, 8); return true; }
     return false;
   }
 
@@ -224,7 +209,9 @@ export class FloatingOrb {
     const scale   = 1 + Math.sin(this.phase) * this.breatheAmp;
     const r       = this.radius * scale;
     const opacity = globalOpacity * (0.55 + 0.45 * Math.sin(this.opacityPhase));
-    const { r: cr, g: cg, b: cb } = this.color;
+    const cr = Math.round(this.color.r);
+    const cg = Math.round(this.color.g);
+    const cb = Math.round(this.color.b);
     const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r);
     grad.addColorStop(0,   `rgba(${cr},${cg},${cb},${opacity})`);
     grad.addColorStop(0.5, `rgba(${cr},${cg},${cb},${opacity * 0.4})`);
@@ -249,38 +236,65 @@ export class AnimationEngine {
     this.pulses   = [];
     this.shooters = [];
     this._shooterTimer = rand(2, 6);
-    this.settings = { animationSpeed: 1.0, orbCount: 12, orbOpacity: 0.80, colorTheme: 0 };
-    // per-effect on/off flags
-    this.fx = { stars: true, aurora: true, shooting: true, lines: true };
+
+    // Live palette (mutated in place each frame for smooth transitions)
+    this._palette       = generateCalmPalette();
+    this._targetPalette = clonePalette(generateCalmPalette());
+    this._colorTimer    = 30;      // seconds until next target change
+
+    this.settings = { animationSpeed: 1.0, orbCount: 12, orbOpacity: 0.80 };
+    this.fx       = { stars: true, aurora: true, shooting: true, lines: true };
     this._last    = null;
     this._raf     = null;
     this._running = false;
   }
 
   applySettings(s) {
-    const needRebuild = s.orbCount !== this.settings.orbCount
-                     || s.colorTheme !== this.settings.colorTheme;
+    const needRebuild = s.orbCount !== undefined && s.orbCount !== this.settings.orbCount;
     this.settings = { ...this.settings, ...s };
     if (needRebuild) this._buildScene();
   }
 
+  // Lerp the live palette toward the target each frame
+  _stepPalette(dt, speedMult) {
+    this._colorTimer -= dt * speedMult;
+    if (this._colorTimer <= 0) {
+      // Pick a fresh calming target; transition will carry us there over ~8–10s
+      const next = generateCalmPalette();
+      for (let i = 0; i < this._targetPalette.length; i++) {
+        Object.assign(this._targetPalette[i], next[i]);
+      }
+      this._colorTimer = 30;
+    }
+
+    // Smooth exponential approach — ~90 % of the way in ~8 s
+    const t = 1 - Math.exp(-dt * 0.38 * speedMult);
+    for (let i = 0; i < this._palette.length; i++) {
+      const cur = this._palette[i], tgt = this._targetPalette[i];
+      cur.r += (tgt.r - cur.r) * t;
+      cur.g += (tgt.g - cur.g) * t;
+      cur.b += (tgt.b - cur.b) * t;
+    }
+  }
+
   _buildScene() {
-    const { orbCount, colorTheme } = this.settings;
-    const palette = THEMES[colorTheme] || THEMES[0];
+    const { orbCount } = this.settings;
     const w = this.canvas.width, h = this.canvas.height;
 
-    // Orbs
+    // Orbs — each references one of the 4 live palette entries (by value index)
     this.orbs = Array.from({ length: orbCount }, (_, i) =>
-      new FloatingOrb(w, h, palette[i % palette.length])
+      new FloatingOrb(w, h, this._palette[i % this._palette.length])
     );
 
-    // Stars — fixed count independent of orbs
+    // Starfield
     this.stars = Array.from({ length: 220 }, () => new Star(w, h));
 
-    // Aurora waves — 3–4 layered bands
-    this.auroras = Array.from({ length: 4 }, () => new AuroraWave(palette));
+    // Aurora waves — each references a live palette entry
+    this.auroras = Array.from({ length: 4 }, (_, i) =>
+      new AuroraWave(this._palette[i % this._palette.length])
+    );
 
-    // Clear ephemeral effects
+    // Ephemeral effects
     this.pulses   = [];
     this.shooters = Array.from({ length: 3 }, () => {
       const s = new ShootingStar(w, h); s.active = false; return s;
@@ -321,6 +335,9 @@ export class AnimationEngine {
     const { ctx, canvas } = this;
     const { animationSpeed, orbOpacity } = this.settings;
     const w = canvas.width, h = canvas.height;
+
+    // ── Advance palette ───────────────────────────────────────────────────────
+    this._stepPalette(dt, animationSpeed);
 
     // ── Background ────────────────────────────────────────────────────────────
     ctx.fillStyle = 'rgba(8, 8, 18, 0.22)';
@@ -382,8 +399,10 @@ export class AnimationEngine {
           const oi = this.orbs[i], oj = this.orbs[j];
           const d2 = dist2(oi.x, oi.y, oj.x, oj.y);
           if (d2 < MAX_LINK_D2) {
-            const alpha = (1 - d2 / MAX_LINK_D2) * 0.20 * orbOpacity;
-            const { r: cr, g: cg, b: cb } = oi.color;
+            const alpha = (1 - d2 / MAX_LINK_D2) * 0.18 * orbOpacity;
+            const cr = Math.round(oi.color.r);
+            const cg = Math.round(oi.color.g);
+            const cb = Math.round(oi.color.b);
             ctx.beginPath();
             ctx.moveTo(oi.x, oi.y);
             ctx.lineTo(oj.x, oj.y);
