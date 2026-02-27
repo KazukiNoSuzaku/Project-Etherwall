@@ -108,7 +108,7 @@ export class MusicEngine {
     this._nodes.push({ osc: swellLFO, lfo: null, env: null });
 
     // ── Fade in over 4 s ─────────────────────────────────────────────────────
-    const targetGain = this._volume * 0.14;
+    const targetGain = this._volume * 0.35;
     this._master.gain.setTargetAtTime(targetGain, this._ac.currentTime, 1.5);
 
     this._playing = true;
@@ -137,7 +137,7 @@ export class MusicEngine {
     this._volume = Math.max(0, Math.min(1, v));
     if (this._playing && this._master && this._ac) {
       this._master.gain.setTargetAtTime(
-        this._volume * 0.14,
+        this._volume * 0.35,
         this._ac.currentTime,
         0.15
       );

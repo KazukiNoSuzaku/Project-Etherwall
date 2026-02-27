@@ -5,6 +5,10 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: #0A0A14;
+  cursor: default;
+}
+
+body.cursor-idle {
   cursor: none;
 }
 

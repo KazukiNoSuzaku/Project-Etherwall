@@ -125,6 +125,14 @@ sliders.musicVol.addEventListener('input', e => {
 btnQuit.addEventListener('click',       () => api.quitApp());
 btnFullscreen.addEventListener('click', () => api.toggleFullscreen());
 
+// ── Cursor auto-hide (visible on move, hidden after 3 s idle) ────────────────
+let cursorTimer = null;
+document.addEventListener('mousemove', () => {
+  document.body.classList.remove('cursor-idle');
+  clearTimeout(cursorTimer);
+  cursorTimer = setTimeout(() => document.body.classList.add('cursor-idle'), 3000);
+});
+
 // ── Settings reveal (top-right corner) ───────────────────────────────────────
 const REVEAL_ZONE = 150;
 let hideTimer = null;

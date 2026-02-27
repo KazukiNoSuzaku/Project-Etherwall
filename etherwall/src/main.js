@@ -2,6 +2,9 @@ const { app, BrowserWindow, ipcMain, screen } = require('electron');
 
 if (require('electron-squirrel-startup')) app.quit();
 
+// Allow Web Audio API to start without a user gesture
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 let settings = { animationSpeed: 1.0, orbCount: 12, orbOpacity: 0.80, colorTheme: 0 };
 let mainWindow = null;
 
