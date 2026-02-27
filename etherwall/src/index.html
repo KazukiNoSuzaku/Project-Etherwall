@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Etherwall</title>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+
+    <!-- Settings overlay — revealed on mouse proximity to top-right corner -->
+    <div id="settings-overlay" class="settings-overlay hidden">
+      <div class="settings-panel">
+        <h2 class="settings-title">Etherwall</h2>
+
+        <label class="setting-row">
+          <span>Orbs</span>
+          <input type="range" id="orb-count" min="4" max="30" step="1" value="12" />
+          <span class="val" id="orb-count-val">12</span>
+        </label>
+
+        <label class="setting-row">
+          <span>Speed</span>
+          <input type="range" id="anim-speed" min="0.2" max="3.0" step="0.1" value="1.0" />
+          <span class="val" id="anim-speed-val">1.0×</span>
+        </label>
+
+        <label class="setting-row">
+          <span>Glow</span>
+          <input type="range" id="orb-opacity" min="0.1" max="1.0" step="0.05" value="0.80" />
+          <span class="val" id="orb-opacity-val">80%</span>
+        </label>
+
+        <div class="setting-row theme-row">
+          <span>Theme</span>
+          <div class="theme-pills">
+            <button class="theme-pill active" data-theme="0">Midnight</button>
+            <button class="theme-pill" data-theme="1">Ocean</button>
+            <button class="theme-pill" data-theme="2">Sunset</button>
+            <button class="theme-pill" data-theme="3">Forest</button>
+          </div>
+        </div>
+
+        <div class="setting-row fx-row">
+          <span>Effects</span>
+          <div class="fx-toggles">
+            <button class="fx-toggle active" data-fx="stars">Stars</button>
+            <button class="fx-toggle active" data-fx="aurora">Aurora</button>
+            <button class="fx-toggle active" data-fx="shooting">Comets</button>
+            <button class="fx-toggle active" data-fx="lines">Lines</button>
+          </div>
+        </div>
+
+        <div class="setting-row btn-row">
+          <button id="btn-quit" class="ctrl-btn quit-btn">Quit</button>
+          <button id="btn-fullscreen" class="ctrl-btn">Fullscreen</button>
+        </div>
+
+        <p class="hint-text">Move mouse away to hide  ·  Esc to quit</p>
+      </div>
+    </div>
+  </body>
+</html>
