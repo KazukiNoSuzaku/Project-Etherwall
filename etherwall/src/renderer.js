@@ -40,6 +40,13 @@ async function init() {
   engine.applySettings(s);
   syncUI(s);
   engine.start();
+
+  // Auto-start music (autoplay policy is disabled in main.js)
+  await music.start();
+  if (music.playing) {
+    btnMusic.textContent = '■ Off';
+    btnMusic.classList.add('active');
+  }
 }
 init();
 
